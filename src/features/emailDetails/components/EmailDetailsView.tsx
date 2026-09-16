@@ -1,11 +1,12 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { AppButton } from '../../../components/common/AppButton';
 import { contentStyles } from '../../../components/common/contentStyles';
 import { EmptyState } from '../../../components/common/EmptyState';
 import { ErrorState } from '../../../components/common/ErrorState';
 import { LoadingState } from '../../../components/common/LoadingState';
 import { SectionCard } from '../../../components/common/SectionCard';
+import { spacing } from '../../../constants/ui';
 import type { EmailAnalysis } from '../../../types/email';
 import { AIAnalysisView } from '../../aiAnalysis/components/AIAnalysisView';
 import type { EmailDetails } from '../types';
@@ -22,6 +23,7 @@ export interface EmailDetailsViewProps {
   onSummarize?: (emailId: string) => void;
   onOpenAttachment?: (attachmentId: string) => void;
   analysis?: EmailAnalysis;
+  analysisComplete?: boolean;
   analyzing?: boolean;
   analysisErrorMessage?: string;
 }
@@ -36,6 +38,7 @@ export function EmailDetailsView({
   onSummarize,
   onOpenAttachment,
   analysis,
+  analysisComplete = false,
   analyzing = false,
   analysisErrorMessage,
 }: EmailDetailsViewProps) {
@@ -50,6 +53,7 @@ export function EmailDetailsView({
   }
 
   const summarize = onSummarize ? () => onSummarize(email.id) : undefined;
+  const summarizeLabel = analysis ? 'Analyze Again' : 'Summarize with AI';
 
   return (
     <View style={contentStyles.stack}>
@@ -58,7 +62,7 @@ export function EmailDetailsView({
       {!loading && errorMessage ? (
         <ErrorState message={errorMessage} onRetry={onRetry} />
       ) : null}
-      <View style={contentStyles.group}>
+      <View style={styles.actions}>
         <AppButton
           label={email.isRead ? 'Mark Unread' : 'Mark Read'}
           onPress={
@@ -66,12 +70,14 @@ export function EmailDetailsView({
           }
           loading={markingRead}
           disabled={loading}
+          variant="compact"
         />
         <AppButton
-          label="Summarize with AI"
+          label={summarizeLabel}
           onPress={summarize}
           loading={analyzing}
-          disabled={loading}
+          disabled={loading || analyzing}
+          variant="compact"
         />
       </View>
       <SectionCard title="Email Content">
@@ -94,6 +100,7 @@ export function EmailDetailsView({
       </SectionCard>
       <AIAnalysisView
         analysis={analysis}
+        analysisComplete={analysisComplete}
         loading={analyzing}
         errorMessage={analysisErrorMessage}
         onRetry={summarize}
@@ -101,3 +108,11 @@ export function EmailDetailsView({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  actions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+});

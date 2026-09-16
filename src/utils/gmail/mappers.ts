@@ -6,7 +6,7 @@ import { formatGmailDate, parseDateMillis } from './dates';
 import type { DateFormatOptions } from './dates';
 import { asRecord, asString } from './guards';
 import { extractGmailHeaders, splitRecipients } from './headers';
-import { decodeHtmlEntities } from './html';
+import { decodeHtmlEntities, htmlToPlainText } from './html';
 import { isGmailRead } from './labels';
 
 function parseMessage(value: unknown, options: DateFormatOptions) {
@@ -66,6 +66,11 @@ export function mapGmailMessageToDetails(
   if (!parsed) {
     return null;
   }
+  const body = parseGmailBody(parsed.payload);
+  const contentText =
+    (body.text.trim() ? body.text : '') ||
+    htmlToPlainText(asString(parsed.message.snippet)) ||
+    decodeHtmlEntities(asString(parsed.message.snippet)).trim();
   return {
     id: parsed.id,
     sender: parsed.sender,
@@ -73,7 +78,7 @@ export function mapGmailMessageToDetails(
     recipients: splitRecipients(parsed.headers.to),
     dateTimeLabel: parsed.dateTimeLabel,
     isRead: parsed.isRead,
-    contentText: parseGmailBody(parsed.payload).text,
+    contentText,
     attachments: extractGmailAttachments(parsed.payload).map(attachment => ({
       id: attachment.id,
       filename: attachment.filename,

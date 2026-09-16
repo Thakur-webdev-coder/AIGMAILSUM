@@ -12,8 +12,9 @@ export interface InboxViewProps extends EmailActions {
   emails: readonly InboxEmail[];
   searchQuery: string;
   selectedFilter: InboxFilter;
-  onSearchChange: (query: string) => void;
-  onFilterChange: (filter: InboxFilter) => void;
+  onSearchChange?: (query: string) => void;
+  onSearchSubmit?: () => void;
+  onFilterChange?: (filter: InboxFilter) => void;
   loading?: boolean;
   refreshing?: boolean;
   loadingMore?: boolean;
@@ -29,6 +30,7 @@ export function InboxView({
   searchQuery,
   selectedFilter,
   onSearchChange,
+  onSearchSubmit,
   onFilterChange,
   onOpenEmail,
   onMarkRead,
@@ -51,7 +53,7 @@ export function InboxView({
       message={
         searchQuery || selectedFilter !== 'All'
           ? 'Try another search or filter.'
-          : 'Your emails will appear here once your inbox is connected.'
+          : 'Your inbox is empty.'
       }
     />
   );
@@ -74,6 +76,7 @@ export function InboxView({
           searchQuery={searchQuery}
           selectedFilter={selectedFilter}
           onSearchChange={onSearchChange}
+          onSearchSubmit={onSearchSubmit}
           onFilterChange={onFilterChange}
         />
       }

@@ -1,6 +1,6 @@
 import { decodeBase64Url } from './base64Url';
 import { asRecord } from './guards';
-import { htmlToPlainText } from './html';
+import { htmlToPlainText, stripHtmlArtifacts } from './html';
 import {
   isAttachmentPart,
   MAX_MIME_DEPTH,
@@ -18,6 +18,20 @@ export interface ParsedGmailBody {
 
 function emptyBody(): ParsedGmailBody {
   return { plainText: null, html: null, text: '' };
+}
+
+function parsePlainText(decoded: string): ParsedGmailBody {
+  const cleanedPlainText = stripHtmlArtifacts(decoded);
+  const text = cleanedPlainText.trim() ? cleanedPlainText : decoded;
+  return { plainText: text, html: null, text };
+}
+
+function looksLikeHtml(value: string): boolean {
+  return /<\/?[a-z][\s\S]*>/i.test(value);
+}
+
+function hasText(body: ParsedGmailBody | undefined): body is ParsedGmailBody {
+  return Boolean(body?.text.trim());
 }
 
 /** Handles nested alternative/mixed/related MIME parts with cycle/depth limits. */
@@ -45,8 +59,23 @@ export function parseGmailBody(payload: unknown): ParsedGmailBody {
         return emptyBody();
       }
       return type === 'text/plain'
-        ? { plainText: decoded, html: null, text: decoded }
+        ? parsePlainText(decoded)
         : { plainText: null, html: decoded, text: htmlToPlainText(decoded) };
+    }
+    const singlePartDecoded = decodeBase64Url(asRecord(part.body)?.data);
+    if (
+      singlePartDecoded !== null &&
+      !type &&
+      !Array.isArray(part.parts) &&
+      !asRecord(part.body)?.attachmentId
+    ) {
+      return looksLikeHtml(singlePartDecoded)
+        ? {
+            plainText: null,
+            html: singlePartDecoded,
+            text: htmlToPlainText(singlePartDecoded),
+          }
+        : parsePlainText(singlePartDecoded);
     }
 
     const children: ParsedGmailBody[] = [];
@@ -62,16 +91,24 @@ export function parseGmailBody(payload: unknown): ParsedGmailBody {
       }
     }
     if (type === 'multipart/alternative') {
-      const plain = children.find(child => child.plainText !== null);
-      const html = children.find(child => child.html !== null);
+      const plain =
+        children.find(child => child.plainText !== null && child.text.trim()) ??
+        children.find(child => child.plainText !== null);
+      const html =
+        children.find(child => child.html !== null && child.text.trim()) ??
+        children.find(child => child.html !== null);
       return {
         plainText: plain?.plainText ?? null,
         html: html?.html ?? null,
-        text: plain?.text ?? html?.text ?? '',
+        text: (hasText(plain) ? plain.text : undefined) ??
+          (hasText(html) ? html.text : undefined) ??
+          plain?.text ??
+          html?.text ??
+          '',
       };
     }
     if (type === 'multipart/related') {
-      return children[0] ?? emptyBody();
+      return children.find(hasText) ?? children[0] ?? emptyBody();
     }
     const plain = children.flatMap(child =>
       child.plainText === null ? [] : [child.plainText],

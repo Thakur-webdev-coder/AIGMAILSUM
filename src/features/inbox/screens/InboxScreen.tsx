@@ -1,22 +1,31 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useNavigation } from '@react-navigation/native';
+import type { CompositeNavigationProp } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type {
+  AuthenticatedTabParamList,
+  RootStackParamList,
+} from '../../../app/navigation/types';
 import { ScreenContainer } from '../../../components/common/ScreenContainer';
 import { InboxView } from '../components/InboxView';
-import type { InboxEmail, InboxFilter } from '../types';
+import { useInbox } from '../useInbox';
 
-const emptyEmails: readonly InboxEmail[] = [];
+type InboxNavigation = CompositeNavigationProp<
+  BottomTabNavigationProp<AuthenticatedTabParamList, 'Inbox'>,
+  NativeStackNavigationProp<RootStackParamList>
+>;
 
 export function InboxScreen() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState<InboxFilter>('All');
-
+  const navigation = useNavigation<InboxNavigation>();
+  const inbox = useInbox();
   return (
     <ScreenContainer scrollable={false} safeAreaEdges={['left', 'right']}>
       <InboxView
-        emails={emptyEmails}
-        searchQuery={searchQuery}
-        selectedFilter={selectedFilter}
-        onSearchChange={setSearchQuery}
-        onFilterChange={setSelectedFilter}
+        {...inbox}
+        onOpenEmail={emailId => {
+          navigation.navigate('EmailDetails', { emailId });
+        }}
       />
     </ScreenContainer>
   );

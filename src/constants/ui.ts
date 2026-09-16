@@ -27,6 +27,9 @@ export const colors = {
   onPrimary: '#FFFFFF',
   muted: '#E2E8F0',
   error: '#B91C1C',
+  success: '#15803D',
+  successBackground: '#ECFDF5',
+  successBorder: '#86EFAC',
 } as const;
 
 export const typography = {

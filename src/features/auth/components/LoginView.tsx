@@ -2,9 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { AppButton } from '../../../components/common/AppButton';
 import { ErrorState } from '../../../components/common/ErrorState';
-import { LoadingState } from '../../../components/common/LoadingState';
 import { SectionCard } from '../../../components/common/SectionCard';
-import { colors, spacing, typography } from '../../../constants/ui';
+import { colors, layout, spacing, typography } from '../../../constants/ui';
 
 export interface LoginViewProps {
   onGoogleSignIn?: () => void;
@@ -31,7 +30,6 @@ export function LoginView({
           onPress={onGoogleSignIn}
           loading={loading}
         />
-        {loading ? <LoadingState message="Signing in..." /> : null}
         {!loading && errorMessage ? (
           <ErrorState message={errorMessage} onRetry={onGoogleSignIn} />
         ) : null}
@@ -41,11 +39,24 @@ export function LoginView({
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, justifyContent: 'center', gap: spacing.xl },
-  title: { ...typography.heading, color: colors.text, textAlign: 'center' },
+  container: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    gap: spacing.lg,
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 440,
+  },
+  title: {
+    ...typography.heading,
+    color: colors.text,
+    textAlign: 'center',
+    paddingHorizontal: spacing.md,
+  },
   subtitle: {
     ...typography.body,
     color: colors.secondaryText,
     textAlign: 'center',
+    paddingHorizontal: layout.minTouchTarget / 2,
   },
 });

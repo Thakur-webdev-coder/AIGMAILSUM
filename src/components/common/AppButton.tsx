@@ -8,6 +8,7 @@ interface AppButtonProps {
   disabled?: boolean;
   loading?: boolean;
   accessibilityHint?: string;
+  variant?: 'primary' | 'compact';
 }
 
 export function AppButton({
@@ -16,6 +17,7 @@ export function AppButton({
   disabled = false,
   loading = false,
   accessibilityHint,
+  variant = 'primary',
 }: AppButtonProps) {
   const unavailable = disabled || loading || !onPress;
 
@@ -29,6 +31,7 @@ export function AppButton({
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
+        variant === 'compact' && styles.compact,
         pressed && styles.pressed,
         unavailable && styles.disabled,
       ]}
@@ -61,6 +64,12 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     borderRadius: layout.cornerRadius,
     backgroundColor: colors.primary,
+  },
+  compact: {
+    alignSelf: 'flex-start',
+    minHeight: 40,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   pressed: { backgroundColor: colors.primaryPressed },
   disabled: { backgroundColor: colors.muted },

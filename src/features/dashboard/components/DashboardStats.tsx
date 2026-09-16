@@ -20,7 +20,7 @@ interface DashboardStatsProps {
 export function DashboardStats({ values }: DashboardStatsProps) {
   const { fontScale } = useWindowDimensions();
   // Flex basis is a preferred width, not a minimum: cards can shrink to any phone.
-  const cardSize = { flexBasis: 240 * Math.max(1, fontScale) };
+  const cardSize = { flexBasis: 180 * Math.max(1, fontScale) };
 
   return (
     <View style={styles.grid}>
@@ -34,6 +34,6 @@ export function DashboardStats({ values }: DashboardStatsProps) {
 }
 
 const styles = StyleSheet.create({
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.lg },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   cell: { flexGrow: 1, flexShrink: 1, minWidth: 0, maxWidth: '100%' },
 });

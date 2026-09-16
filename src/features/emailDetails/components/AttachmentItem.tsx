@@ -27,6 +27,7 @@ export function AttachmentItem({ attachment, onOpen }: AttachmentItemProps) {
           label="Open attachment"
           accessibilityHint={attachment.filename}
           onPress={() => onOpen(attachment.id)}
+          variant="compact"
         />
       ) : null}
     </View>

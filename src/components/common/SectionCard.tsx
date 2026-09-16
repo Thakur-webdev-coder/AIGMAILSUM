@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, layout, spacing, typography } from '../../constants/ui';
+import { colors, spacing, typography } from '../../constants/ui';
 
 interface SectionCardProps {
   children: ReactNode;
@@ -25,12 +25,12 @@ const styles = StyleSheet.create({
   card: {
     alignSelf: 'stretch',
     minWidth: 0,
-    padding: spacing.lg,
+    padding: spacing.md,
     gap: spacing.md,
-    borderRadius: layout.cornerRadius,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
-  title: { ...typography.heading, color: colors.text, flexShrink: 1 },
+  title: { ...typography.label, color: colors.text, flexShrink: 1 },
 });

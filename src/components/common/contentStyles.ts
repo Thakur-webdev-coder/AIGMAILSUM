@@ -3,7 +3,7 @@ import { colors, spacing, typography } from '../../constants/ui';
 
 export const contentStyles = StyleSheet.create({
   stack: { gap: spacing.lg },
-  group: { gap: spacing.sm },
+  group: { gap: spacing.md },
   badges: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   heading: { ...typography.heading, color: colors.text },
   label: { ...typography.label, color: colors.text },

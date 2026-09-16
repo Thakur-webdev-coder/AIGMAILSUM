@@ -1,8 +1,9 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Badge } from '../../../components/common/Badge';
 import { contentStyles } from '../../../components/common/contentStyles';
 import { SectionCard } from '../../../components/common/SectionCard';
+import { spacing } from '../../../constants/ui';
 import type { EmailDetails } from '../types';
 
 interface EmailHeaderProps {
@@ -15,7 +16,7 @@ export function EmailHeader({ email }: EmailHeaderProps) {
       <Text selectable accessibilityRole="header" style={contentStyles.heading}>
         {email.subject}
       </Text>
-      <View style={contentStyles.group}>
+      <View style={styles.meta}>
         <Text selectable style={contentStyles.body}>
           From: {email.sender}
         </Text>
@@ -26,7 +27,14 @@ export function EmailHeader({ email }: EmailHeaderProps) {
           {email.dateTimeLabel}
         </Text>
       </View>
-      <Badge label={email.isRead ? 'Read' : 'Unread'} />
+      <View style={styles.badges}>
+        <Badge label={email.isRead ? 'Read' : 'Unread'} />
+      </View>
     </SectionCard>
   );
 }
+
+const styles = StyleSheet.create({
+  meta: { gap: spacing.sm },
+  badges: { flexDirection: 'row', flexWrap: 'wrap' },
+});

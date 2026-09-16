@@ -7,14 +7,16 @@ import type { InboxFilter } from '../types';
 interface InboxToolbarProps {
   searchQuery: string;
   selectedFilter: InboxFilter;
-  onSearchChange: (query: string) => void;
-  onFilterChange: (filter: InboxFilter) => void;
+  onSearchChange?: (query: string) => void;
+  onSearchSubmit?: () => void;
+  onFilterChange?: (filter: InboxFilter) => void;
 }
 
 export function InboxToolbar({
   searchQuery,
   selectedFilter,
   onSearchChange,
+  onSearchSubmit,
   onFilterChange,
 }: InboxToolbarProps) {
   return (
@@ -28,6 +30,8 @@ export function InboxToolbar({
         placeholderTextColor={colors.secondaryText}
         value={searchQuery}
         onChangeText={onSearchChange}
+        onSubmitEditing={onSearchSubmit}
+        editable={Boolean(onSearchChange)}
         autoCapitalize="none"
         autoCorrect={false}
         returnKeyType="search"
@@ -41,8 +45,9 @@ export function InboxToolbar({
               key={filter}
               accessibilityRole="button"
               accessibilityLabel={filter}
-              accessibilityState={{ selected }}
-              onPress={() => onFilterChange(filter)}
+              accessibilityState={{ selected, disabled: !onFilterChange }}
+              disabled={!onFilterChange}
+              onPress={() => onFilterChange?.(filter)}
               style={({ pressed }) => [
                 styles.chip,
                 selected && styles.selected,
@@ -63,14 +68,14 @@ export function InboxToolbar({
 }
 
 const styles = StyleSheet.create({
-  container: { gap: spacing.lg, paddingBottom: spacing.lg },
+  container: { gap: spacing.md, paddingBottom: spacing.md },
   title: { ...typography.heading, color: colors.text },
   search: {
     ...typography.body,
     color: colors.text,
     minHeight: layout.minTouchTarget,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: layout.cornerRadius,
@@ -78,17 +83,20 @@ const styles = StyleSheet.create({
   },
   filters: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   chip: {
-    minHeight: layout.minTouchTarget,
+    minHeight: 40,
     maxWidth: '100%',
     justifyContent: 'center',
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
-    borderRadius: layout.cornerRadius,
+    borderRadius: 999,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
-  selected: { backgroundColor: colors.primary, borderColor: colors.primary },
+  selected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primaryPressed,
+  },
   pressed: { opacity: 0.8 },
   chipLabel: { ...typography.caption, color: colors.text },
   selectedLabel: { color: colors.onPrimary },

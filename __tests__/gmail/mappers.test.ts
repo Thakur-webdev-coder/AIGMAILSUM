@@ -63,6 +63,130 @@ describe('labels', () => {
   );
 });
 
+describe('Email details body fallback edge cases', () => {
+  test('maps no-subject short plain text body without dropping content', () => {
+    expect(
+      mapGmailMessageToDetails({
+        id: 'short',
+        payload: {
+          mimeType: 'text/plain',
+          headers: [],
+          body: { data: Buffer.from('Hi').toString('base64url') },
+        },
+      }),
+    ).toMatchObject({
+      subject: '(No subject)',
+      contentText: 'Hi',
+    });
+  });
+
+  test('maps single-part payload body data', () => {
+    expect(
+      mapGmailMessageToDetails({
+        id: 'single',
+        payload: {
+          body: { data: Buffer.from('Single-part body').toString('base64url') },
+        },
+      })?.contentText,
+    ).toBe('Single-part body');
+  });
+
+  test('maps nested MIME text body', () => {
+    expect(
+      mapGmailMessageToDetails({
+        id: 'nested',
+        payload: {
+          mimeType: 'multipart/mixed',
+          parts: [
+            {
+              mimeType: 'multipart/alternative',
+              parts: [
+                {
+                  mimeType: 'text/plain',
+                  body: {
+                    data: Buffer.from('Nested body').toString('base64url'),
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      })?.contentText,
+    ).toBe('Nested body');
+  });
+
+  test('maps HTML-only body', () => {
+    expect(
+      mapGmailMessageToDetails({
+        id: 'html-only',
+        payload: {
+          mimeType: 'text/html',
+          body: { data: Buffer.from('<p>HTML body</p>').toString('base64url') },
+        },
+      })?.contentText,
+    ).toBe('HTML body');
+  });
+
+  test('uses snippet only when body extraction is empty', () => {
+    expect(
+      mapGmailMessageToDetails({
+        id: 'snippet-fallback',
+        snippet: 'Hi',
+        payload: { body: { data: '!!!' } },
+      })?.contentText,
+    ).toBe('Hi');
+  });
+
+  test('falls through empty plain alternative to usable HTML text', () => {
+    expect(
+      mapGmailMessageToDetails({
+        id: 'empty-plain',
+        payload: {
+          mimeType: 'multipart/alternative',
+          parts: [
+            {
+              mimeType: 'text/plain',
+              body: { data: Buffer.from('').toString('base64url') },
+            },
+            {
+              mimeType: 'text/html',
+              body: { data: Buffer.from('<p>Hi</p>').toString('base64url') },
+            },
+          ],
+        },
+      })?.contentText,
+    ).toBe('Hi');
+  });
+
+  test('falls through empty related child to usable sibling text', () => {
+    expect(
+      mapGmailMessageToDetails({
+        id: 'empty-related',
+        payload: {
+          mimeType: 'multipart/related',
+          parts: [
+            {
+              mimeType: 'text/html',
+              body: { data: Buffer.from('').toString('base64url') },
+            },
+            {
+              mimeType: 'text/plain',
+              body: { data: Buffer.from('Hi').toString('base64url') },
+            },
+          ],
+        },
+      })?.contentText,
+    ).toBe('Hi');
+  });
+
+  test('keeps existing normal multipart email unchanged', () => {
+    const details = mapGmailMessageToDetails(message());
+
+    expect(details?.contentText).toContain('Complete\nemail body');
+    expect(details?.contentText).not.toBe('Short & preview');
+  });
+});
+
 describe('safe dates', () => {
   test('supports epoch milliseconds, RFC dates, ISO dates and Date objects', () => {
     expect(parseDateMillis('0')).toBe(0);
@@ -153,16 +277,16 @@ describe('DTO display mapping', () => {
       attachments: [],
     });
   });
-  test('ignores malformed nested fields and never uses a snippet as full content', () => {
+  test('uses Gmail snippet as final safe details fallback when body extraction is empty', () => {
     expect(
       mapGmailMessageToDetails({
         id: 'valid',
         payload: { headers: [null], parts: 'bad', body: 4 },
         labelIds: {},
-        snippet: 'Not complete content',
+        snippet: 'Hi',
         internalDate: 'bad',
       })?.contentText,
-    ).toBe('');
+    ).toBe('Hi');
   });
   test('uses Date header when internalDate is invalid and preserves epoch zero', () => {
     const dto = message();

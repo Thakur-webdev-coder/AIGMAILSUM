@@ -1,17 +1,19 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Badge } from '../../../components/common/Badge';
 import { contentStyles } from '../../../components/common/contentStyles';
 import { EmptyState } from '../../../components/common/EmptyState';
 import { ErrorState } from '../../../components/common/ErrorState';
 import { LoadingState } from '../../../components/common/LoadingState';
 import { SectionCard } from '../../../components/common/SectionCard';
+import { colors, layout, spacing, typography } from '../../../constants/ui';
 import type { EmailAnalysis } from '../../../types/email';
 import { AnalysisList } from './AnalysisList';
 import { ImportantInformationSection } from './ImportantInformationSection';
 
 export interface AIAnalysisViewProps {
   analysis?: EmailAnalysis;
+  analysisComplete?: boolean;
   loading?: boolean;
   errorMessage?: string;
   onRetry?: () => void;
@@ -19,6 +21,7 @@ export interface AIAnalysisViewProps {
 
 export function AIAnalysisView({
   analysis,
+  analysisComplete = false,
   loading = false,
   errorMessage,
   onRetry,
@@ -31,6 +34,19 @@ export function AIAnalysisView({
       {loading ? <LoadingState message="Analyzing email..." /> : null}
       {!loading && errorMessage ? (
         <ErrorState message={errorMessage} onRetry={onRetry} />
+      ) : null}
+      {!loading && analysis && analysisComplete && !errorMessage ? (
+        <View
+          accessibilityRole="alert"
+          style={styles.successBanner}
+        >
+          <Text style={styles.successTitle}>
+            ✓ AI analysis complete
+          </Text>
+          <Text style={styles.successMessage}>
+            Summary and insights are ready
+          </Text>
+        </View>
       ) : null}
       {analysis ? (
         <>
@@ -63,3 +79,23 @@ export function AIAnalysisView({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  successBanner: {
+    borderWidth: 1,
+    borderColor: colors.successBorder,
+    borderRadius: layout.cornerRadius,
+    backgroundColor: colors.successBackground,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    gap: spacing.xs,
+  },
+  successTitle: {
+    ...typography.label,
+    color: colors.success,
+  },
+  successMessage: {
+    ...typography.caption,
+    color: colors.text,
+  },
+});

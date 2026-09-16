@@ -7,8 +7,9 @@ export const stateStyles = StyleSheet.create({
     alignSelf: 'stretch',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.md,
-    paddingVertical: spacing.lg,
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.xl,
   },
   title: {
     ...typography.heading,

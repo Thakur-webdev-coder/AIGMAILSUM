@@ -6,11 +6,24 @@ import { EmailDetailsScreen } from '../../features/emailDetails/screens/EmailDet
 import { useAppSelector } from '../../hooks/useAppSelector';
 import { AuthenticatedTabs } from './AuthenticatedTabs';
 import type { RootStackParamList } from './types';
+import { useAuthSession } from '../../features/auth/useAuthSession';
+import { LoadingState } from '../../components/common/LoadingState';
+import { ScreenContainer } from '../../components/common/ScreenContainer';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function RootNavigator() {
+  useAuthSession();
+  const initializing = useAppSelector(state => state.auth.initializing);
   const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
+
+  if (initializing) {
+    return (
+      <ScreenContainer>
+        <LoadingState message="Restoring session..." />
+      </ScreenContainer>
+    );
+  }
 
   return (
     <NavigationContainer>

@@ -19,7 +19,9 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
       >
         {message}
       </Text>
-      {onRetry ? <AppButton label="Try again" onPress={onRetry} /> : null}
+      {onRetry ? (
+        <AppButton label="Try again" onPress={onRetry} variant="compact" />
+      ) : null}
     </View>
   );
 }

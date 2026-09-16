@@ -19,8 +19,8 @@ export function AnalysisList({ title, items }: AnalysisListProps) {
       ) : (
         items.map((item, index) => (
           <View key={index} style={styles.row}>
-            <Text accessible={false} style={contentStyles.body}>
-              •
+            <Text accessible={false} style={styles.bullet}>
+              -
             </Text>
             <Text selectable style={[contentStyles.body, styles.item]}>
               {item}
@@ -33,6 +33,7 @@ export function AnalysisList({ title, items }: AnalysisListProps) {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: spacing.sm },
+  row: { flexDirection: 'row', gap: spacing.sm, alignItems: 'flex-start' },
+  bullet: { ...contentStyles.secondary, width: spacing.md },
   item: { flex: 1, minWidth: 0 },
 });

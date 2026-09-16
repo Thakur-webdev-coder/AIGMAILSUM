@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ReactNode } from 'react';
+import type { ComponentRef, ReactNode, Ref } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -16,6 +16,7 @@ interface ScreenContainerProps {
   safeAreaEdges?: readonly Edge[];
   /** Disable when the screen's child owns scrolling, such as a FlatList. */
   scrollable?: boolean;
+  scrollViewRef?: Ref<ComponentRef<typeof ScrollView>>;
 }
 
 const allEdges: readonly Edge[] = ['top', 'right', 'bottom', 'left'];
@@ -24,6 +25,7 @@ export function ScreenContainer({
   children,
   safeAreaEdges = allEdges,
   scrollable = true,
+  scrollViewRef,
 }: ScreenContainerProps) {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -42,6 +44,7 @@ export function ScreenContainer({
     <View style={[styles.screen, safeAreaStyle]}>
       {scrollable ? (
         <ScrollView
+          ref={scrollViewRef}
           style={styles.fill}
           contentContainerStyle={contentStyle}
           contentInsetAdjustmentBehavior="never"

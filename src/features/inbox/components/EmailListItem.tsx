@@ -39,6 +39,9 @@ export function EmailListItem({
           </Text>
           <Text style={styles.date}>{dateTimeLabel}</Text>
         </View>
+        <View style={styles.subjectRow}>
+          <Badge label={isRead ? 'Read' : 'Unread'} />
+        </View>
         <Text
           numberOfLines={2}
           style={[styles.subject, !isRead && styles.unread]}
@@ -48,28 +51,34 @@ export function EmailListItem({
         <Text numberOfLines={3} style={styles.preview}>
           {preview}
         </Text>
-        <Badge label={isRead ? 'Read' : 'Unread'} />
       </Pressable>
       <AppButton
         label={isRead ? 'Mark unread' : 'Mark read'}
         onPress={onMarkRead ? () => onMarkRead(id, !isRead) : undefined}
+        variant="compact"
       />
     </SectionCard>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { minHeight: layout.minTouchTarget, gap: spacing.sm },
+  content: { minHeight: layout.minTouchTarget, gap: spacing.xs },
   pressed: { opacity: 0.7 },
-  metadata: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  metadata: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  subjectRow: { flexDirection: 'row', flexWrap: 'wrap' },
   sender: {
-    ...typography.body,
+    ...typography.label,
     color: colors.text,
     flexGrow: 1,
     flexShrink: 1,
   },
   date: { ...typography.caption, color: colors.secondaryText, flexShrink: 1 },
-  subject: { ...typography.body, color: colors.text },
+  subject: { ...typography.body, color: colors.text, flexShrink: 1 },
   preview: { ...typography.body, color: colors.secondaryText },
   unread: { fontWeight: '700' },
 });
